@@ -1,12 +1,7 @@
-# mo_diagram_generator/atoms.py
 import periodictable
 import sys
 from typing import Dict, List, Optional, Tuple
 
-# --- Approximate Valence Shell Ionization Potentials (VSIPs) in eV ---
-# Source: Primarily based on common textbook values / simplified models.
-# These are APPROXIMATE and electronegativity effects in molecules will shift them.
-# Using negative values as is conventional for bound states.
 VSIP_ENERGIES_EV: Dict[str, float] = {
     # Period 1
     'H_1s': -13.6,
@@ -20,7 +15,7 @@ VSIP_ENERGIES_EV: Dict[str, float] = {
     'O_2s': -32.3, 'O_2p': -15.9,
     'F_2s': -40.2, 'F_2p': -18.7,
     'Ne_2s': -48.5, 'Ne_2p': -21.6, # Noble gas
-    # Period 3 (Example - extend as needed)
+    # Period 3 
     'Na_3s': -5.1,
     'Mg_3s': -7.6,
     'Al_3s': -11.3, 'Al_3p': -6.0,
@@ -29,22 +24,21 @@ VSIP_ENERGIES_EV: Dict[str, float] = {
     'S_3s': -20.7, 'S_3p': -11.6,
     'Cl_3s': -25.3, 'Cl_3p': -13.7,
     'Ar_3s': -29.2, 'Ar_3p': -15.8, # Noble gas
-    # Period 4 Examples (Extend and Refine Energies!)
+    # Period 4 
     'K_4s': -4.3,
     'Ca_4s': -6.1,
-    'Sc_4s': -6.5, 'Sc_3d': -7.9, # Approximate
-    'Ti_4s': -6.8, 'Ti_3d': -8.9, # Approximate
-    'V_4s': -6.7,  'V_3d': -9.0,  # Approximate
-    #'Cr_4s': -6.8, 'Cr_3d': -10.0, # Approximate # Original Value
-    'Mn_4s': -7.4, #'Mn_3d': -10.6, # Approximate # Original Value
-    #'Fe_4s': -7.9, 'Fe_3d': -11.0, # Approximate (Very Rough!) # Original Value
-    'Co_4s': -7.9, 'Co_3d': -11.7, # Approximate
-    'Ni_4s': -7.6, 'Ni_3d': -12.0, # Approximate
-    'Cu_4s': -7.7, 'Cu_3d': -12.2, # Approximate (Very Rough!)
-    'Zn_4s': -9.4, 'Zn_3d': -15.8, # Approximate
+    'Sc_4s': -6.5, 'Sc_3d': -7.9, 
+    'Ti_4s': -6.8, 'Ti_3d': -8.9, 
+    'V_4s': -6.7,  'V_3d': -9.0,  
+    #'Cr_4s': -6.8, 'Cr_3d': -10.0, 
+    'Mn_4s': -7.4, #'Mn_3d': -10.6, 
+    #'Fe_4s': -7.9, 'Fe_3d': -11.0, 
+    'Co_4s': -7.9, 'Co_3d': -11.7, 
+    'Ni_4s': -7.6, 'Ni_3d': -12.0, 
+    'Cu_4s': -7.7, 'Cu_3d': -12.2, 
+    'Zn_4s': -9.4, 'Zn_3d': -15.8, 
     'Ga_4s': -12.6, 'Ga_4p': -6.0,
-    'Ge_4s': -15.6, 'Ge_4p': -7.6,
-    # Add Br, Kr etc. if needed
+    'Ge_4s': -15.6, 'Ge_4p': -7.6,    
 }
 
 # MODIFIED: Add/Update specific elements as requested
@@ -63,7 +57,6 @@ VSIP_ENERGIES_EV.update({
 SIGMA_PI_INVERSION_Z = 7 # Nitrogen
 
 # Known data for fallback - PRIORITY SOURCE for valence config/electrons
-# (Keep existing _KNOWN_DATA dictionary as is, unless updates are needed)
 _KNOWN_DATA = {
     # Z: {'period': P, 'group': G, 'valence_e': VE, 'config': ['ns', 'np', ...]}
     1:  {'period': 1, 'group': 1,  'valence_e': 1, 'config': ['1s']},  # H
@@ -86,17 +79,17 @@ _KNOWN_DATA = {
     18: {'period': 3, 'group': 18, 'valence_e': 8, 'config': ['3s', '3p']}, # Ar
     19: {'period': 4, 'group': 1,  'valence_e': 1, 'config': ['4s']},  # K
     20: {'period': 4, 'group': 2,  'valence_e': 2, 'config': ['4s']},  # Ca
-    # --- Transition Metals (Examples - Valence e and config can be complex) ---
+    # --- Transition Metals ---
     21: {'period': 4, 'group': 3,  'valence_e': 3, 'config': ['4s', '3d']}, # Sc
     22: {'period': 4, 'group': 4,  'valence_e': 4, 'config': ['4s', '3d']}, # Ti
     23: {'period': 4, 'group': 5,  'valence_e': 5, 'config': ['4s', '3d']}, # V
-    24: {'period': 4, 'group': 6,  'valence_e': 6, 'config': ['4s', '3d']}, # Cr (often 4s1 3d5)
+    24: {'period': 4, 'group': 6,  'valence_e': 6, 'config': ['4s', '3d']}, # Cr ( 4s1 3d5)
     25: {'period': 4, 'group': 7,  'valence_e': 7, 'config': ['4s', '3d']}, # Mn
     26: {'period': 4, 'group': 8,  'valence_e': 8, 'config': ['4s', '3d']}, # Fe
     27: {'period': 4, 'group': 9,  'valence_e': 9, 'config': ['4s', '3d']}, # Co
     28: {'period': 4, 'group': 10, 'valence_e': 10, 'config': ['4s', '3d']},# Ni
-    29: {'period': 4, 'group': 11, 'valence_e': 11, 'config': ['4s', '3d']},# Cu (often 4s1 3d10) -> Treat valence as 1 or 11? Using 11 for total count.
-    30: {'period': 4, 'group': 12, 'valence_e': 12, 'config': ['4s', '3d']},# Zn (often 2 valence e: 4s2) -> Using 12 for total count.
+    29: {'period': 4, 'group': 11, 'valence_e': 11, 'config': ['4s', '3d']},# Cu ( 4s1 3d10) -> Treat valence as 1 or 11? Using 11 for total count.
+    30: {'period': 4, 'group': 12, 'valence_e': 12, 'config': ['4s', '3d']},# Zn ( 2 valence e: 4s2) -> Using 12 for total count.
     # --- P-block Period 4 ---
     31: {'period': 4, 'group': 13, 'valence_e': 3, 'config': ['4s', '4p']}, # Ga (3d is inner shell)
     32: {'period': 4, 'group': 14, 'valence_e': 4, 'config': ['4s', '4p']}, # Ge
@@ -123,24 +116,22 @@ def get_ao_energy(element_symbol: str, orbital_symbol: str) -> Optional[float]:
     key = f"{element_symbol}_{orbital_symbol}"
     energy = VSIP_ENERGIES_EV.get(key)
     if energy is None:
-        # MODIFIED: Raise ValueError as requested
         raise ValueError(f"Energy data for {element_symbol} {orbital_symbol} not found. Update VSIP_ENERGIES_EV in atoms.py.")
         # print(f"Warning: Energy lookup failed for AO '{key}'. Check VSIP_ENERGIES_EV in atoms.py. Returning None.", file=sys.stderr) # Original warning
         # return None # Original behavior
     return energy
 
-# (Keep get_atom_data and get_total_valence_electrons functions as they are,
-# unless further modifications are needed based on the error handling change above)
+
 
 def get_atom_data(symbol: str) -> Dict:
     """
-    Retrieves basic data and valence configuration for an atom using periodictable library
+    retrieves basic data and valence configuration for an atom using periodictable library
     and falls back/supplements with _KNOWN_DATA.
 
-    Args:
+    args:
         symbol: The atomic symbol (e.g., 'N', 'Fe').
 
-    Returns:
+    returns:
         A dictionary containing atomic number, period, group, symbol,
         and a list of valence orbital symbols (e.g., ['2s', '2p'] or ['4s', '3d']).
 

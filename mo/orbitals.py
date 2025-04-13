@@ -1,4 +1,3 @@
-# mo_diagram_generator/orbitals.py
 from dataclasses import dataclass, field
 from typing import List, Optional, Tuple, Dict
 from .atoms import get_ao_energy, SIGMA_PI_INVERSION_Z # Assuming SIGMA_PI_INVERSION_Z might still be useful
@@ -104,8 +103,8 @@ def assign_antibonding_symmetry(bonding_sym: str) -> str:
     if bonding_sym == "u": return "g"
     return ""
 
-# --- Refactored `combine_atomic_orbitals` ---
-# Now assumes it's called only with symmetry-matched AOs (sigma-sigma or pi-pi)
+# ------
+# if it's called only with symmetry-matched AOs (sigma-sigma or pi-pi)
 
 def combine_atomic_orbitals(ao1: AtomicOrbital, ao2: AtomicOrbital, interaction_type: str, beta: float = DEFAULT_BETA) -> List[MolecularOrbital]:
     """
@@ -175,8 +174,6 @@ def combine_atomic_orbitals(ao1: AtomicOrbital, ao2: AtomicOrbital, interaction_
     final_sym_anti = f"{mo_base_symbol}*{sym_label_anti}({ao_basis_label})"
 
     # Create MOs
-    # Note: Degeneracy group assignment needs to happen in the calling function (`generate_molecular_orbitals`)
-    # as this function only handles one pair at a time.
     mos.append(MolecularOrbital(symbol=final_sym_bond, energy=e_bonding, is_bonding=True, origin_AOs=(ao1, ao2)))
     mos.append(MolecularOrbital(symbol=final_sym_anti, energy=e_antibonding, is_bonding=False, origin_AOs=(ao1, ao2)))
 
