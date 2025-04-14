@@ -9,7 +9,6 @@ try:
     from .cli import setup_arg_parser
     from .utils import parse_molecule_input
     from .atoms import get_atom_data, get_total_valence_electrons
-    # Make sure this function name matches the one in orbitals.py
     from .orbitals import generate_molecular_orbitals
     from .electron_filler import fill_electrons
     from .properties import calculate_bond_order, determine_magnetic_behavior
@@ -62,10 +61,9 @@ def run():
 
         # 4. Generate Atomic and Molecular Orbitals
         print("\nGenerating Atomic and Molecular Orbitals...")
-        # --- MODIFICATION HERE ---
         # Adjust unpacking to match the new return signature (2 values instead of 3)
         all_original_aos, mos = generate_molecular_orbitals(atom_A_data, atom_B_data)
-        # --- END MODIFICATION ---
+        
 
         if not mos:
              print("\nError: No molecular orbitals were generated.", file=sys.stderr)
@@ -103,11 +101,11 @@ def run():
              safe_mol_name = safe_mol_name.replace('+','_plus').replace('-','_minus')
              output_filename = f"{safe_mol_name}_MO_diagram.svg"
 
-        # --- MODIFICATION HERE ---
+        
         # Filter the original AOs for plotting based on atom_label
         aos_A_for_plot = [ao for ao in all_original_aos if ao.atom_label == 'A']
         aos_B_for_plot = [ao for ao in all_original_aos if ao.atom_label == 'B']
-        # --- END MODIFICATION ---
+        
 
         print(f"\nGenerating plot: '{output_filename}'...")
         plot_mo_diagram(
@@ -144,6 +142,6 @@ def run():
         print("Please check input and data.", file=sys.stderr)
         sys.exit(1)
 
-# --- Entry point ---
+
 if __name__ == "__main__":
     run()
